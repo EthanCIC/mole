@@ -220,7 +220,7 @@ export class RegularMode extends GameMode {
         energyTextContainer.style.display = 'flex';
         energyTextContainer.style.flexGrow = '1';
         energyTextContainer.style.justifyContent = 'flex-end';
-        energyTextContainer.style.width = '90px';
+        energyTextContainer.style.width = '80px';
 
         const energyText = document.createElement('span');
         energyText.id = 'energyText';
