@@ -1,4 +1,4 @@
-class AccelerometerChart {
+export class AccelerometerChart {
     constructor(canvasId, displayId, threshold) {
         this.canvas = document.getElementById(canvasId);
         this.ctx = this.canvas.getContext('2d');

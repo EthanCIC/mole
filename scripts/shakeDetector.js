@@ -1,4 +1,6 @@
-class ShakeDetector {
+// shakeDetector.js
+
+export class ShakeDetector {
     constructor(threshold, onShake) {
         this.threshold = threshold;
         this.onShake = onShake;

@@ -1,4 +1,3 @@
-// ClassicMode.js
 import { GameMode } from './GameMode.js';
 
 export class ClassicMode extends GameMode {
@@ -27,16 +26,36 @@ export class ClassicMode extends GameMode {
         this.isRunning = true;
         this.score = 0;
         this.updateScore(0);
-        this.game.hideActionButton();
         this.startShrinking();
     }
 
+    end() {
+        this.isRunning = false;
+        this.isFeverMode = false;
+        // 不再调用 this.game.endGame
+    }
+
+    endGame() {
+        this.game.endGame(this.score);
+    }
+    
+
+    endFeverMode() {
+        this.isFeverMode = false;
+        this.game.endFeverMode();
+        this.endGame(); // 在 fever 模式结束时调用 endGame
+    }
+
     update(timestamp) {
+        if (!this.isRunning) {
+            return;
+        }
+        
         if (!this.lastTimestamp) this.lastTimestamp = timestamp;
         const elapsed = timestamp - this.lastTimestamp;
 
         if (elapsed >= this.FRAME_DURATION) {
-            if (!this.isFeverMode && this.isRunning) {
+            if (!this.isFeverMode) {
                 this.circleSize -= this.shrinkSpeed;
                 if (this.circleSize <= 0) {
                     if (!this.currentCycleScoreChanged) {
@@ -45,9 +64,10 @@ export class ClassicMode extends GameMode {
                         this.game.vibrateDevice();
                     }
                     this.resetCircle();
+                } else {
+                    this.game.updateCircleSize(this.circleSize);
+                    this.checkCircleInTimeWindow();
                 }
-                this.game.updateCircleSize(this.circleSize);
-                this.checkCircleInTimeWindow();
             }
             this.lastTimestamp = timestamp;
         }
@@ -61,16 +81,6 @@ export class ClassicMode extends GameMode {
         } else {
             this.checkShakeTiming();
         }
-    }
-
-    end() {
-        this.isRunning = false;
-        this.isFeverMode = false;
-        this.game.showActionButton('Play Again');
-        this.game.updateScoreDisplay(`${this.score} $DEEK`);
-        this.game.showCircleAndTimeWindow();
-
-        setTimeout(() => this.game.startMoleAnimation(), 1000);
     }
 
     updateScore(change) {
@@ -136,11 +146,5 @@ export class ClassicMode extends GameMode {
         setTimeout(() => {
             this.endFeverMode();
         }, 10000);
-    }
-
-    endFeverMode() {
-        this.isFeverMode = false;
-        this.game.endFeverMode();
-        this.end();
     }
 }

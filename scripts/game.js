@@ -1,6 +1,7 @@
-// Game.js
 import { ClassicMode } from './ClassicMode.js';
 import { RegularMode } from './RegularMode.js';
+import { ShakeDetector } from './shakeDetector.js';
+import { AccelerometerChart } from './accelerometerChart.js';
 
 export class Game {
     constructor() {
@@ -9,21 +10,142 @@ export class Game {
             circle: document.getElementById('circle'),
             timeWindow: document.getElementById('timeWindow'),
             feedback: document.getElementById('feedback'),
-            actionButton: document.getElementById('actionButton'),
             scoreDisplay: document.getElementById('scoreDisplay'),
             feverModeDisplay: document.getElementById('feverMode'),
             feverCountdown: document.getElementById('feverCountdown'),
-            mole: document.getElementById('mole')
+            mole: document.getElementById('mole'),
+            backButton: document.getElementById('backButton'),
+            modeButtons: document.getElementById('modeButtons'),
+            classicModeButton: document.getElementById('classicModeButton'),
+            regularModeButton: document.getElementById('regularModeButton')
         };
+
+        console.log(this.elements); // 添加這行來檢查元素是否正確獲取
 
         this.shakeDetector = new ShakeDetector(25, () => this.handleShake());
         this.accelerometerChart = new AccelerometerChart('accelerationChart', 'accelerationDisplay', 25);
+        this.moleShakeCount = 0;
 
         this.modes = {
             classic: new ClassicMode(this),
             regular: new RegularMode(this)
         };
         this.currentMode = null;
+        this.setupShakeTestButton();
+        this.animationFrameId = null;
+
+        // 初始化 mole 的位置
+        this.initializeMolePosition();
+
+        this.setupEventListeners();
+    }
+
+    setupEventListeners() {
+        this.elements.classicModeButton.addEventListener('click', () => this.startGame('classic'));
+        this.elements.regularModeButton.addEventListener('click', () => this.startGame('regular'));
+        this.elements.backButton.addEventListener('click', () => {
+            console.log('Back button clicked'); // 添加日志
+            this.backToMainMenu();
+        });
+    }
+
+    startGame(mode) {
+        this.setMode(mode);
+        this.hideMainMenuButtons();
+        this.showBackButton();
+        console.log('Game started, back button should be visible'); // 添加日志
+    }
+
+    backToMainMenu() {
+        console.log('Back to main menu triggered'); // 添加日志
+        if (this.currentMode) {
+            this.currentMode.end();
+        }
+        this.resetGame();
+        this.showMainMenuButtons();
+        this.hideBackButton();
+        this.resetGameElements(); // 新增這行
+    }
+    
+    resetGameElements() {
+        // 重置圈圈大小和位置
+        this.updateCircleSize(280); // 初始圈圈大小
+        this.elements.circle.style.transform = 'translate(-50%, -50%)'; // 确保重置transform
+        this.elements.circle.style.left = '50%'; // 设置初始水平位置
+        this.elements.circle.style.top = '50%'; // 设置初始垂直位置
+        
+        // 重置其他游戏元素到初始状态，如分数、时间窗口等
+        this.updateScoreDisplay('Score: 0');
+        this.elements.timeWindow.style.backgroundColor = 'rgba(76, 175, 80, 0.4)';
+        this.elements.circle.style.display = 'block';
+        this.elements.timeWindow.style.display = 'block';
+        
+        // 重置 mole 的位置
+        this.initializeMolePosition();
+    }
+    
+
+    resetGame() {
+        // Reset game state, score, etc.
+        this.updateScoreDisplay('Score: 0');
+        // ... 其他重置邏輯 ...
+    }
+
+    hideMainMenuButtons() {
+        this.elements.modeButtons.style.display = 'none';
+    }
+
+    showMainMenuButtons() {
+        this.elements.modeButtons.style.display = 'flex';
+    }
+
+    showBackButton() {
+        console.log('Showing back button'); // 添加日誌
+        this.elements.backButton.style.display = 'block';
+        this.elements.backButton.style.opacity = '1';
+        this.elements.backButton.style.visibility = 'visible';
+        this.elements.backButton.style.zIndex = '1000'; // 確保按鈕在最上層
+    }
+
+    hideBackButton() {
+        console.log('Hiding back button'); // 添加日誌
+        this.elements.backButton.style.display = 'none';
+        this.elements.backButton.style.opacity = '0';
+        this.elements.backButton.style.visibility = 'hidden';
+    }
+    
+    initializeMolePosition() {
+        this.elements.mole.style.transform = 'translateY(75%) scaleX(0.5)';
+        this.elements.mole.style.transition = 'none'; // 禁用過渡效果
+    }
+    initializeMolePosition() {
+        // 直接設置 mole 的初始樣式
+        this.elements.mole.style.transform = 'translateY(75%) scaleX(0.5)';
+        this.elements.mole.style.transition = 'none'; // 禁用過渡效果
+    }
+
+    setupShakeTestButton() {
+        const shakeTestButton = document.getElementById('shakeTestButton');
+        if (shakeTestButton) {
+            // 只在非移動設備上顯示測試按鈕
+            if (!/Mobi|Android/i.test(navigator.userAgent)) {
+                shakeTestButton.style.display = 'block';
+                shakeTestButton.addEventListener('click', () => {
+                    this.handleShake();
+                });
+            } else {
+                shakeTestButton.style.display = 'none';
+            }
+        }
+    }
+
+    handleShake() {
+        console.log('handleShake called'); // 添加這行來檢查方法是否被調用
+        if (this.currentMode) {
+            this.currentMode.handleShake();
+        } else {
+            console.error('No game mode is currently active');
+        }
     }
 
     init() {
@@ -32,25 +154,35 @@ export class Game {
 
     setMode(modeName) {
         if (this.currentMode) {
-            this.currentMode.end();
+            this.currentMode.end(); // 只结束当前模式的运行
+        }
+        if (this.animationFrameId) {
+            cancelAnimationFrame(this.animationFrameId);
+            this.animationFrameId = null;
         }
         this.currentMode = this.modes[modeName];
         this.currentMode.init();
+        this.start();
     }
+    
 
     start() {
         if (this.currentMode) {
             this.currentMode.start();
             this.requestMotionPermission();
             this.animate();
+        } else {
+            console.error('No game mode selected');
         }
     }
 
     animate(timestamp) {
         if (this.currentMode) {
             this.currentMode.update(timestamp);
+        } else {
+            console.error('No game mode in animate');
         }
-        requestAnimationFrame((timestamp) => this.animate(timestamp));
+        this.animationFrameId = requestAnimationFrame((timestamp) => this.animate(timestamp));
     }
 
     handleShake() {
@@ -83,9 +215,12 @@ export class Game {
     }
 
     updateCircleSize(size) {
-        this.elements.circle.style.setProperty('--size', `${Math.max(0, size)}px`);
-        this.elements.timeWindow.style.width = `${150}px`;
-        this.elements.timeWindow.style.height = `${150}px`;
+        const safeSize = Math.max(0, size);
+        this.elements.circle.style.width = `${safeSize}px`;
+        this.elements.circle.style.height = `${safeSize}px`;
+        // 為了調試，暫時將時間窗口大小設置為固定值
+        this.elements.timeWindow.style.width = '150px';
+        this.elements.timeWindow.style.height = '150px';
 
         if (size <= 150) {
             this.elements.timeWindow.style.backgroundColor = 'rgba(76, 175, 80, 0.6)';
@@ -111,6 +246,9 @@ export class Game {
         const visiblePercentage = Math.min(score / maxScore, 1);
         const translateY = 75 - (visiblePercentage * 75);
         const scaleX = 0.5 + (visiblePercentage * 0.8);
+        
+        // 在更新之前重新啟用過渡效果
+        this.elements.mole.style.transition = 'transform 0.3s ease-out';
         this.elements.mole.style.transform = `translateY(${translateY}%) scaleX(${scaleX})`;
     }
 
@@ -162,10 +300,28 @@ export class Game {
     }
 
     startMoleAnimation() {
+        this.moleShakeCount = 0; // 在開始抖動前初始化計數器
         this.shakeMole();
     }
 
-    // ... (前面的代碼保持不變)
+    endGame(score) {
+        console.log('End game triggered'); // 添加日志
+        if (this.currentMode) {
+            this.currentMode.isRunning = false;
+        }
+        this.updateScoreDisplay(`${score} $DEEK`);
+        this.showCircleAndTimeWindow();
+    
+        setTimeout(() => {
+            this.startMoleAnimation();
+            setTimeout(() => {
+                this.showMainMenuButtons();
+                this.hideBackButton();
+            }, 3000); // 假设动画持续 3 秒
+        }, 1000);
+    }
+    
+    
 
     shakeMole() {
         const baseTransform = this.elements.mole.style.transform || `translateY(75%) scaleX(0.5)`;
@@ -206,24 +362,24 @@ export class Game {
         const targetTranslateY = 75;
         const duration = 2500;
         let startTime;
-
+    
         const animate = (currentTime) => {
             if (!startTime) startTime = currentTime;
             const elapsedTime = currentTime - startTime;
             const progress = Math.min(elapsedTime / duration, 1);
-
+    
             const easeProgress = this.easeOutCubic(progress);
-
+    
             const currentScale = initialScale + (targetScale - initialScale) * easeProgress;
             const currentTranslateY = initialTranslateY + (targetTranslateY - initialTranslateY) * easeProgress;
-
+    
             this.elements.mole.style.transform = `translateY(${currentTranslateY}%) scaleX(${currentScale})`;
-
+    
             if (progress < 1) {
                 requestAnimationFrame(animate);
             }
         };
-
+    
         requestAnimationFrame(animate);
     }
 
