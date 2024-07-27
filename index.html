@@ -9,7 +9,16 @@
 </head>
 <body>
     <div id="gameWrapper">
-        <div id="scoreDisplay">Score: 0</div>
+        <!-- 新增的模式選擇按鈕 -->
+        <div id="modeSelection">
+            <button id="classicModeButton">Classic Mode</button>
+            <button id="regularModeButton">Regular Mode</button>
+        </div>
+    
+        <div id="scoreDisplay">
+            Score: 0
+        </div>
+    
         <div id="gameArea">
             <div id="timeWindow"></div>
             <div id="circle"></div>
@@ -17,23 +26,24 @@
             <div id="feverMode"></div>
             <div id="feverCountdown"></div>
         </div>
+    
+        <!-- 將原來的 Start 按鈕改為 id="actionButton" -->
         <button id="actionButton">Start</button>
+    
+        <div id="moleContainer">
+            <img id="mole" src="assets/deek.png" alt="Mole">
+        </div>
+    
+        <div id="bottomImage">
+            <img src="assets/grass_and_balls.png" alt="Grass with sweet potatoes" style="width: 100%; height: auto;">
+        </div>
     </div>
-    <div id="moleContainer">
-        <img id="mole" src="assets/deek.png" alt="Mole">
-    </div>
-    <div id="bottomImage">
-        <img src="assets/grass_and_balls.png" alt="Grass with sweet potatoes" style="width: 100%; height: auto;">
-    </div>
+
     <div id="accelerationMonitor" style="display: none;">
         <div id="accelerationDisplay"></div>
         <canvas id="accelerationChart"></canvas>
     </div>
     
-    <script src="scripts/utils.js"></script>
-    <script src="scripts/shakeDetector.js"></script>
-    <script src="scripts/accelerometerChart.js"></script>
-    <script src="scripts/game.js"></script>
-    <script src="scripts/main.js"></script>
+    <script type="module" src="scripts/main.js"></script>
 </body>
 </html>
