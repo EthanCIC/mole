@@ -92,7 +92,7 @@ export class ClassicMode extends GameMode {
 
         this.game.updateMoleHeight(this.score);
 
-        if (this.score >= 100 && !this.isFeverMode) {
+        if (this.score >= 10 && !this.isFeverMode) {
             this.startFeverMode();
         }
     }
