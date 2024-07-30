@@ -23,7 +23,7 @@ export class Game {
         console.log(this.elements); // 添加這行來檢查元素是否正確獲取
 
         this.shakeDetector = new ShakeDetector(25, () => this.handleShake());
-        this.accelerometerChart = new AccelerometerChart('accelerationChart', 'accelerationDisplay', 400);
+        this.accelerometerChart = new AccelerometerChart('accelerationChart', 'accelerationDisplay', 25, 100);
         this.moleShakeCount = 0;
 
         this.modes = {
