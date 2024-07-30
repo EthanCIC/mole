@@ -1,5 +1,5 @@
 export class AccelerometerChart {
-    constructor(canvasId, displayId, threshold) {
+    constructor(canvasId, displayId, threshold, dataPoints = 100) {
         this.canvas = document.getElementById(canvasId);
         this.ctx = this.canvas.getContext('2d');
         this.display = document.getElementById(displayId);
@@ -12,7 +12,9 @@ export class AccelerometerChart {
         this.display.textContent = `Acc: ${acceleration.toFixed(2)} | Threshold: ${this.threshold}`;
         
         this.accelerationData.push(acceleration);
-        this.accelerationData.shift();
+        if (this.accelerationData.length > this.dataPoints) {
+            this.accelerationData.shift();
+        }
 
         this.maxAcceleration = Math.max(this.maxAcceleration, ...this.accelerationData, this.threshold + 10);
         
