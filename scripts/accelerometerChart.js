@@ -4,6 +4,7 @@ export class AccelerometerChart {
         this.ctx = this.canvas.getContext('2d');
         this.display = document.getElementById(displayId);
         this.threshold = threshold;
+        this.dataPoints = dataPoints;  // 新增這行
         this.accelerationData = Array(50).fill(0);
         this.maxAcceleration = 50;
     }
