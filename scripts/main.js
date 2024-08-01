@@ -10,6 +10,17 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log('backButton element found', backButton);
     }
 
+    const devModeToggle = document.getElementById('devModeToggle');
+    if (!devModeToggle) {
+        console.error('devModeToggle element not found in DOM');
+    } else {
+        console.log('devModeToggle element found', devModeToggle);
+        devModeToggle.addEventListener('click', () => {
+            console.log('Dev mode toggle clicked');
+            window.toggleDevMode();
+        });
+    }
+
     const game = new Game();
     game.init();
 
@@ -18,17 +29,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
     classicButton.addEventListener('click', () => {
         console.log('Classic mode button clicked');
-        game.startGame('classic'); // 调用 startGame 方法
+        game.startGame('classic');
     });
 
     regularButton.addEventListener('click', () => {
         console.log('Regular mode button clicked');
-        game.startGame('regular'); // 调用 startGame 方法
+        game.startGame('regular');
     });
 
-    // Dev mode toggle (你可以在HTML中添加一个按钮来切换这个模式)
+    // Dev mode toggle
     window.toggleDevMode = () => {
         const accelerationMonitor = document.getElementById('accelerationMonitor');
-        accelerationMonitor.style.display = accelerationMonitor.style.display === 'none' ? 'block' : 'none';
+        const devModeToggle = document.getElementById('devModeToggle');
+        if (accelerationMonitor.style.display === 'none') {
+            accelerationMonitor.style.display = 'block';
+            devModeToggle.textContent = 'Hide Dev Mode';
+        } else {
+            accelerationMonitor.style.display = 'none';
+            devModeToggle.textContent = 'Show Dev Mode';
+        }
     };
 });
