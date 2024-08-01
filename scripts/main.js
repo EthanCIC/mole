@@ -11,8 +11,22 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     const devModeToggle = document.getElementById('devModeToggle');
-    if (devModeToggle) {
-        devModeToggle.style.display = 'block';
+    const accelerationMonitor = document.getElementById('accelerationMonitor');
+    
+    if (!devModeToggle) {
+        console.error('devModeToggle element not found in DOM');
+    } else {
+        console.log('devModeToggle element found', devModeToggle);
+        // 确保加速度计初始时是隐藏的
+        if (accelerationMonitor) {
+            accelerationMonitor.style.display = 'none';
+        }
+        devModeToggle.textContent = 'Show Dev Mode';
+
+        devModeToggle.addEventListener('click', () => {
+            console.log('Dev mode toggle clicked');
+            toggleDevMode();
+        });
     }
 
     const game = new Game();
@@ -21,26 +35,32 @@ document.addEventListener('DOMContentLoaded', () => {
     const classicButton = document.getElementById('classicModeButton');
     const regularButton = document.getElementById('regularModeButton');
 
-    classicButton.addEventListener('click', () => {
-        console.log('Classic mode button clicked');
-        game.startGame('classic');
-    });
+    if (classicButton) {
+        classicButton.addEventListener('click', () => {
+            console.log('Classic mode button clicked');
+            game.startGame('classic');
+        });
+    }
 
-    regularButton.addEventListener('click', () => {
-        console.log('Regular mode button clicked');
-        game.startGame('regular');
-    });
+    if (regularButton) {
+        regularButton.addEventListener('click', () => {
+            console.log('Regular mode button clicked');
+            game.startGame('regular');
+        });
+    }
 
-    // Dev mode toggle
-    window.toggleDevMode = () => {
-        const accelerationMonitor = document.getElementById('accelerationMonitor');
-        const devModeToggle = document.getElementById('devModeToggle');
-        if (accelerationMonitor.style.display === 'none') {
-            accelerationMonitor.style.display = 'block';
-            devModeToggle.textContent = 'Hide Dev Mode';
+    // Dev mode toggle function
+    function toggleDevMode() {
+        if (accelerationMonitor) {
+            if (accelerationMonitor.style.display === 'none') {
+                accelerationMonitor.style.display = 'block';
+                devModeToggle.textContent = 'Hide Dev Mode';
+            } else {
+                accelerationMonitor.style.display = 'none';
+                devModeToggle.textContent = 'Show Dev Mode';
+            }
         } else {
-            accelerationMonitor.style.display = 'none';
-            devModeToggle.textContent = 'Show Dev Mode';
+            console.error('accelerationMonitor element not found in DOM');
         }
-    };
+    }
 });
