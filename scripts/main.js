@@ -11,14 +11,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     const devModeToggle = document.getElementById('devModeToggle');
-    if (!devModeToggle) {
-        console.error('devModeToggle element not found in DOM');
-    } else {
-        console.log('devModeToggle element found', devModeToggle);
-        devModeToggle.addEventListener('click', () => {
-            console.log('Dev mode toggle clicked');
-            window.toggleDevMode();
-        });
+    if (devModeToggle) {
+        devModeToggle.style.display = 'block';
     }
 
     const game = new Game();
